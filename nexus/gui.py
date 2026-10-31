@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.1
+# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.2
 """One native Sentinel QMainWindow with three additional Nexus workspaces."""
 from __future__ import annotations
 import importlib.util
@@ -26,6 +26,12 @@ def _supports_nexus_extension(folder: Path) -> bool:
             parameters = node.args.posonlyargs + node.args.args + node.args.kwonlyargs
             return any(parameter.arg == "nexus_extension" for parameter in parameters)
     return False
+
+
+def _reset_prompt_after_dispatch(prompt_widget) -> None:
+    """Clear and focus a prompt if and only if dispatch was accepted."""
+    prompt_widget.clear()
+    prompt_widget.setFocus()
 
 
 def sentinel_path() -> Path:
@@ -211,6 +217,9 @@ def launch() -> None:
                                r["text"] for r in obj["reports"])) + "\n"),
                 lambda error: self.chat.appendPlainText(
                     "SWARM ERROR: " + error + "\n"))
+            # An accepted request has been submitted to the worker.
+            # Keep text intact when planning failed or the operator declined.
+            _reset_prompt_after_dispatch(self.question)
 
         def shell(self):
             command = self.command.text().strip()

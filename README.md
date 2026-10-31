@@ -108,3 +108,7 @@ The native GUI accesses the Docker agent through a private, authenticated Unix s
 ## BCIBot Swarm v0.5.0
 
 Nexus chat now coordinates bounded operator-governed roles: coordinator, observed host tools, dual role-based Ollama analysis, verifier and SHA-256 auditor. Native SSID survey and local-only Nmap host discovery require explicit authorization. See docs/SWARM.md.
+
+## BCIBot prompt input refresh (v0.5.2)
+
+After an accepted chat/swarm job is dispatched, the PyQt prompt editor clears and regains keyboard focus. Its submitted text remains in the conversation history. If planning fails or the operator declines a host observation, the prompt field is not cleared.
