@@ -86,3 +86,11 @@ inventory, and Tailscale remote access remain development milestones.
 
 Release artifacts and configuration files will be accompanied
 by SHA-256 verification manifests.
+
+## BCI Nexus Artwork
+
+![BCI Nexus unified security platform](assets/BCI-Nexus-platform-overview.png)
+
+<img src="assets/BCI-Nexus-icon.png" alt="BCI Nexus icon" width="240"/>
+
+Artwork reflects the platform vision, not a claim that pending integrations are deployed.
