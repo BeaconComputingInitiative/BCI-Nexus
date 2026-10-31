@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.2
+# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.3
 """One native Sentinel QMainWindow with three additional Nexus workspaces."""
 from __future__ import annotations
 import importlib.util
@@ -10,7 +10,7 @@ import json
 import os
 from pathlib import Path
 import sys
-from . import agent_client, core, training, swarm
+from . import agent_client, core, training, swarm, gui_export
 
 def _supports_nexus_extension(folder: Path) -> bool:
     """Inspect Sentinel's hook signature without importing or launching a window."""
@@ -68,9 +68,9 @@ def sentinel_path() -> Path:
 
 
 def launch() -> None:
-    from PyQt6.QtCore import QThread, pyqtSignal
+    from PyQt6.QtCore import QThread, pyqtSignal, QTimer
     from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-        QPushButton, QPlainTextEdit, QTextEdit, QLineEdit, QMessageBox)
+        QPushButton, QPlainTextEdit, QTextEdit, QLineEdit, QMessageBox, QMenu, QFileDialog)
 
     class Worker(QThread):
         done = pyqtSignal(object)
@@ -283,6 +283,80 @@ def launch() -> None:
         window.tabs.addTab(Bot(window), "◈ BCIBot + Shell")
         window.tabs.addTab(Lock(window), "◇ BCILock")
         window.tabs.addTab(Training(window), "◉ Model Training")
+
+        # Unified tabs 4-8 are still initialized and automatically updated.
+        # Remove only their tab-bar entries; do not destroy their widgets.
+        export_pages = (
+            ("wireless_indicators", window.tab_indicators),
+            ("dns_observation", window.tab_dns),
+            ("edge_flow_intelligence", window.tab_flow),
+            ("prometheus_metrics", window.tab_metrics),
+            ("terminal_stream", window.tab_terminal),
+        )
+        window._nexus_export_pages = dict(export_pages)
+        for category, page in export_pages:
+            tab_index = window.tabs.indexOf(page)
+            if tab_index < 0:
+                raise RuntimeError("Missing Sentinel export view: " + category)
+            window.tabs.removeTab(tab_index)
+
+        export_menu = QMenu(window)
+        options = [("all", "Export all five datasets (JSON)")]
+        options.extend((key, "Export " + name) for key, name in gui_export.SECTIONS)
+        for category, title in options:
+            action = export_menu.addAction(title)
+
+            def export_action(_checked=False, chosen=category):
+                proposed = gui_export.filename(chosen)
+                directory = Path.home() / "Documents"
+                if not directory.is_dir():
+                    directory = Path.home()
+                chosen_path, _ = QFileDialog.getSaveFileName(
+                    window, "Export current Sentinel observations",
+                    str(directory / proposed), "JSON documents (*.json)")
+                if not chosen_path:
+                    return
+                if not chosen_path.lower().endswith(".json"):
+                    chosen_path += ".json"
+                try:
+                    document = gui_export.build_export(window, chosen)
+                    saved, manifest, digest = gui_export.save_export(chosen_path, document)
+                except (OSError, ValueError, TypeError) as exc:
+                    QMessageBox.warning(window, "Sentinel export failed", str(exc))
+                    return
+                QMessageBox.information(
+                    window, "Sentinel export completed",
+                    "Saved: " + str(saved) + "\nSHA-256: " + digest +
+                    "\nManifest: " + str(manifest) +
+                    "\n\nThis contains the latest GUI observations, which may be stale if offline.")
+            action.triggered.connect(export_action)
+
+        export_button = QPushButton("⤓ Export")
+        export_button.setToolTip("Export the five hidden Sentinel views from live GUI data")
+        export_button.setMenu(export_menu)
+
+        corner = QWidget(window)
+        corner_layout = QHBoxLayout(corner)
+        corner_layout.setContentsMargins(0, 0, 4, 0)
+        corner_layout.setSpacing(8)
+        auto_status = QLabel("Sentinel auto-refresh: 1.5 s")
+        auto_status.setStyleSheet("color: #00d6ed;")
+        corner_layout.addWidget(auto_status)
+        corner_layout.addWidget(export_button)
+        window.tabs.setCornerWidget(corner)
+
+        # Sentinel's existing poll_timer refreshes even hidden tab widgets.
+        # This timer only displays liveness; it does not duplicate capture work.
+        def update_autosync():
+            status = window.status_lbl.text()
+            age_marker = str(window.last_state_timestamp or "no saved state")
+            auto_status.setText("Sentinel auto-sync 1.5s | " +
+                                status.replace("● ", "") + " | " + age_marker[:19])
+
+        window._nexus_sync_status_timer = QTimer(window)
+        window._nexus_sync_status_timer.timeout.connect(update_autosync)
+        window._nexus_sync_status_timer.start(2000)
+        update_autosync()
         window.tabs.setCurrentIndex(0)
 
     folder = sentinel_path()

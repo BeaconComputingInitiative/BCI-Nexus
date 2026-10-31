@@ -112,3 +112,15 @@ Nexus chat now coordinates bounded operator-governed roles: coordinator, observe
 ## BCIBot prompt input refresh (v0.5.2)
 
 After an accepted chat/swarm job is dispatched, the PyQt prompt editor clears and regains keyboard focus. Its submitted text remains in the conversation history. If planning fails or the operator declines a host observation, the prompt field is not cleared.
+
+## Sentinel consolidated export and auto-refresh (v0.5.3)
+
+Unified Sentinel tabs 4–8 (Wireless Indicators, DNS Observation, Edge Flow,
+Raw Prometheus Metrics and Terminal Stream) are removed from the visible tab
+bar but kept alive as auto-updating data views. A single Export menu in the
+upper-right of the tab bar writes any of those five datasets, or all five,
+to UTF-8 JSON with a developer-sealed SHA-256 sidecar. Sentinel's existing
+1.5-second snapshot/Prometheus polling continues in the background even
+when the tab pages are hidden. An auto-sync status indicator shows data
+availability and the most recent saved-state timestamp. Exported data is
+point-in-time and may be stale when the API is offline.

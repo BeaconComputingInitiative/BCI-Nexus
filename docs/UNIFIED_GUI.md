@@ -26,3 +26,22 @@ No Docker agent TCP port is published, preserving the internal network boundary.
 ## Keeping the live capture feed
 
 The integrated GUI can use the updated `BCISentinel-` source checkout while reading the pre-existing live snapshot at `~/BCI/Docker Projects/orbital/captures/bci_state.json`. If the checkout's relative `captures/bci_state.json` does not exist, Nexus automatically uses that legacy capture path when present. Set `BCI_SENTINEL_STATE` explicitly if your live snapshot is elsewhere. No capture file is copied or deleted.
+
+## Consolidated Sentinel views and self-updating data (v0.5.3)
+
+Only the five Sentinel tabs corresponding to unified tab positions 4–8 are
+hidden. Their QWidget objects, tables, terminal stream and data processing
+continue to exist. The AP/Telemetry and Tracked Stations views, plus Nexus,
+BCIBot, BCILock and Model Training remain visible.
+
+Sentinel's own polling loop reloads the capture snapshot and Prometheus data
+every 1.5 seconds unless Freeze Feed is active. Hiding tabs does not stop the
+poll timer; a separate, non-polling status label displays API state and the
+latest saved-state timestamp. No second capture loop is created.
+
+The Export menu presents Wireless Indicators, DNS Observation, Edge Flow
+Intelligence, Raw Prometheus Metrics, Terminal Stream, and Export All.
+At click time, it reads the currently refreshed widgets to make a JSON
+snapshot and a .json.sha256 manifest. Each export records source timestamp,
+selected BSSID, API/status text and the BCI developer seal.
+A saved export file is not itself continuously rewritten.
