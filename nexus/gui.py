@@ -213,6 +213,18 @@ def launch() -> None:
         raise RuntimeError("Cannot import Sentinel GUI")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    # A fresh Sentinel source clone may be separate from the live capture mount.
+    # Redirect the observation file if and only if a real local state file exists.
+    explicit = os.environ.get("BCI_SENTINEL_STATE")
+    existing = Path(module.STATE_FILE_PATH)
+    legacy = Path.home() / "BCI/Docker Projects/orbital/captures/bci_state.json"
+    if explicit:
+        candidate = Path(explicit).expanduser()
+        if not candidate.is_file():
+            raise FileNotFoundError("BCI_SENTINEL_STATE does not exist: " + str(candidate))
+        module.STATE_FILE_PATH = str(candidate)
+    elif not existing.is_file() and legacy.is_file():
+        module.STATE_FILE_PATH = str(legacy)
     if "nexus_extension" not in inspect.signature(module.main).parameters:
         raise RuntimeError("Sentinel GUI is outdated; pull its latest main branch")
     module.main(nexus_extension=extend)

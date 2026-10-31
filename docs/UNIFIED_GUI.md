@@ -22,3 +22,7 @@ The Docker BCIBot agent API is intended for authenticated loopback port 11436; i
 ## Docker agent installation
 
 Provision the constrained Docker agent with `bash scripts/install-docker-agent.sh` after checking hashes and tests. See [Docker agent deployment](DOCKER_AGENT.md). This action creates an internal Docker network, connects the existing Ollama container, and starts `bci-nexus-agent`; it does not restart Ollama or alter BCILock. The Model Training tab remains observation-only.
+
+## Keeping the live capture feed
+
+The integrated GUI can use the updated `BCISentinel-` source checkout while reading the pre-existing live snapshot at `~/BCI/Docker Projects/orbital/captures/bci_state.json`. If the checkout's relative `captures/bci_state.json` does not exist, Nexus automatically uses that legacy capture path when present. Set `BCI_SENTINEL_STATE` explicitly if your live snapshot is elsewhere. No capture file is copied or deleted.
