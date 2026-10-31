@@ -1,0 +1,15 @@
+# BEACON COMPUTING INITIATIVE
+# Developer Seal: CJB-DEV-2026
+
+.env
+.env.*
+*.db
+*.sqlite3
+*.gguf
+*.log
+*.key
+*.pem
+__pycache__/
+.venv/
+backups/
+secrets/
