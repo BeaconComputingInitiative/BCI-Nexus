@@ -31,11 +31,11 @@ The platform is built around three separate projects. A verified BCILock-to-BCIB
 | [BCILock](https://github.com/BeaconComputingInitiative/BCILock) | Endpoint authentication, egress observation and audit evidence | Read-only telemetry bridge tested locally |
 | BCIBot / BCI SEC-OPS | Constrained read-only agent, unified local Ollama inference, evidence analysis | Shared agent routed to Docker port 11435; full grounding test pending |
 | [BCISentinel](https://github.com/BeaconComputingInitiative/BCISentinel-) | Wireless observation, network indicators and PyQt6 Terminal Stream | Independent project; Nexus integration pending |
-| BCI Nexus | Cross-project contracts, evidence correlation and operator orchestration | Documentation baseline; orchestration not deployed |
+| BCI Nexus | Read-only CLI, agent action registry, evidence adapters and integration contracts | First-party development foundation published; end-to-end acceptance pending |
 
 **Detailed [integration breakdown, trust boundaries and verification matrix](docs/INTEGRATIONS.md).**
 
-## Executable integration foundation (v0.2.0)
+## Executable integration foundation (v0.3.0)
 
 Nexus provides a nonprivileged, read-only CLI for BCILock telemetry, Docker Ollama model health, Sentinel snapshot inspection, and a local IP/AP-change journal. The shared BCI SEC-OPS/BCILock integration remains independently installed. No firewall or BLE authentication authority is transferred to Nexus.
 
@@ -55,6 +55,15 @@ The optional command bci-nexus ask-lock submits fresh BCILock evidence for advis
 
 See [Runbook](docs/RUNBOOK.md) and [Security](SECURITY.md).
 
+## BCIBot as the Nexus foundation (v0.3.0)
+
+BCIBot / SEC-OPS is a **first-party component of Nexus** rather than a separate upstream repository. Its [constrained agent](nexus/agent.py), [action security tests](tests/test_agent.py), and [development foundation](docs/BCIBOT_FOUNDATION.md) are maintained here. BCILock and BCISentinel retain separate repositories.
+
+    bci-nexus actions
+    bci-nexus action host.summary
+    bci-nexus agent-ask --inspect host.summary --inspect ollama.health "Review local host observations"
+
+The model cannot select tools or execute privileged operations. This agent is a read-only foundation; full evidence validation, sanctioned scanning, and Sentinel GUI integration are still pending.
 ## Development Status
 
 Integration in progress.
