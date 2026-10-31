@@ -1,0 +1,33 @@
+# BEACON COMPUTING INITIATIVE
+# Developer Seal: CJB-DEV-2026
+# Component: Local-Only BCIBot Docker Agent v0.4.0
+services:
+  bci-nexus-agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.agent
+    image: bci-nexus-agent:0.4.0
+    container_name: bci-nexus-agent
+    user: "${BCI_UID}:${BCI_GID}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 96
+    mem_limit: 768m
+    cpus: 1.5
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11436:8766"
+    volumes:
+      - "${BCI_HOME}/.config/bci-nexus/agent.token:/run/secrets/agent.token:ro"
+      - "${BCI_HOME}/.local/share/bci-nexus/agent-workspace:/workspace:rw"
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=64m
+    networks:
+      - inference
+networks:
+  inference:
+    external: true
+    name: bci-nexus-inference
