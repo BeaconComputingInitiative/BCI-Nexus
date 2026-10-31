@@ -1,9 +1,10 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.0
+# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.1
 """One native Sentinel QMainWindow with three additional Nexus workspaces."""
 from __future__ import annotations
 import importlib.util
+import ast
 import inspect
 import json
 import os
@@ -11,18 +12,54 @@ from pathlib import Path
 import sys
 from . import agent_client, core, training, swarm
 
+def _supports_nexus_extension(folder: Path) -> bool:
+    """Inspect Sentinel's hook signature without importing or launching a window."""
+    source = folder / "sentinel_gui.py"
+    if not source.is_file() or not (folder / "network_scope.py").is_file():
+        return False
+    try:
+        tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+    except (SyntaxError, UnicodeError, OSError):
+        return False
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "main":
+            parameters = node.args.posonlyargs + node.args.args + node.args.kwonlyargs
+            return any(parameter.arg == "nexus_extension" for parameter in parameters)
+    return False
+
+
 def sentinel_path() -> Path:
+    """Select Sentinel if and only if its single-window Nexus hook exists."""
+    override = os.environ.get("BCI_SENTINEL_DIR")
+    if override:
+        directory = Path(override).expanduser()
+        if _supports_nexus_extension(directory):
+            return directory
+        raise RuntimeError(
+            "BCI_SENTINEL_DIR points to an incompatible checkout: " +
+            str(directory) + ". Update it or select $HOME/BCI/BCISentinel-."
+        )
+
     base = Path.home() / "BCI"
-    candidates = [os.environ.get("BCI_SENTINEL_DIR"),
-        base / "Docker Projects/orbital", base / "BCISentinel-",
-        base / "BCISentinel", base / "orbital"]
-    for item in candidates:
-        if not item:
-            continue
-        folder = Path(item).expanduser()
-        if (folder / "sentinel_gui.py").is_file() and (folder / "network_scope.py").is_file():
-            return folder
-    raise FileNotFoundError("Sentinel source missing. Set BCI_SENTINEL_DIR to its directory.")
+    directories = [
+        base / "BCISentinel-",
+        base / "BCISentinel",
+        base / "orbital",
+        base / "Docker Projects/orbital",
+    ]
+    for directory in directories:
+        if _supports_nexus_extension(directory):
+            return directory
+    found = [str(p) for p in directories if (p / "sentinel_gui.py").is_file()]
+    if found:
+        raise RuntimeError(
+            "All Sentinel checkouts are missing main(nexus_extension=...): " +
+            ", ".join(found) + ". Update BCISentinel- or set BCI_SENTINEL_DIR."
+        )
+    raise FileNotFoundError(
+        "No Sentinel checkout found. Clone BCISentinel- under $HOME/BCI."
+    )
+
 
 def launch() -> None:
     from PyQt6.QtCore import QThread, pyqtSignal
@@ -161,8 +198,12 @@ def launch() -> None:
                                       ": " + " / ".join(job.roles) + "\n")
             self.submit(lambda j=job, a=approved: swarm.execute(j, approved=a),
                 lambda obj: self.chat.appendPlainText(
-                    "SWARM [" + str(obj.get("source")) + " verified=" +
-                    str(obj.get("verified")) + "]\n" +
+                    "SWARM [" + str(obj.get("source")) +
+                    " | findings_verified=" + str(obj.get("verified", False)) +
+                    " | tool_execution_succeeded=" +
+                    str(obj.get("execution_succeeded", False)) +
+                    " | response_shape_valid=" +
+                    str(obj.get("response_shape_valid", False)) + "]\n" +
                     (str(obj["observation"].get("stdout", "")) +
                      str(obj["observation"].get("stderr", ""))
                      if "observation" in obj else
