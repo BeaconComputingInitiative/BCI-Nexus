@@ -4,6 +4,7 @@
 # Component: BCIBot Docker Agent Installer v0.4.0
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+cd "$ROOT"
 command -v docker >/dev/null || { echo '[BCI] Docker not installed.'; exit 1; }
 command -v python3 >/dev/null || { echo '[BCI] Python required.'; exit 1; }
 (cd "$ROOT" && sha256sum -c SHA256SUMS &&
@@ -28,7 +29,7 @@ export BCI_HOME="$HOME" BCI_UID="$(id -u)" BCI_GID="$(id -g)"
 if ! docker network inspect bci-nexus-inference >/dev/null 2>&1; then
     docker network create --internal bci-nexus-inference
 fi
-if ! docker inspect -f '{{index .NetworkSettings.Networks "bci-nexus-inference"}}' bci-bot-inference >/dev/null 2>&1; then
+if ! docker inspect -f '{{json .NetworkSettings.Networks}}' bci-bot-inference | grep -Fq '"bci-nexus-inference"'; then
     docker network connect bci-nexus-inference bci-bot-inference
 fi
 docker compose -f "$ROOT/docker/compose.agent.yml" up -d --build

@@ -16,5 +16,7 @@ jobs:
         run: sha256sum -c SHA256SUMS
       - name: Compile Python sources
         run: python3 -m compileall -q nexus integrations tests
+      - name: Validate launcher shell syntax
+        run: bash -n scripts/nexus-gui scripts/install-docker-agent.sh
       - name: Offline unit tests
         run: python3 -m unittest discover -s tests -v
