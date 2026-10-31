@@ -3,5 +3,5 @@
 # Component: BCI Nexus package v0.2.0
 """Read-only integration adapters for BCI security components."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 DEVELOPER_SEAL = "CJB-DEV-2026"
