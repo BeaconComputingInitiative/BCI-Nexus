@@ -31,6 +31,14 @@ bci-nexus ask-lock "Explain L001 L002 L003 from current observations"
 
 Local network observation records interface, addresses, default gateway, and associated SSID/BSSID into a private SQLite WAL DB at ~/.local/share/bci-nexus/network.sqlite3. A network-change event is inserted if and only if the fingerprint differs from the previous snapshot.
 
+## BCIBot first-party action registry
+
+The agent is developed within this repository. See [BCIBot foundation](BCIBOT_FOUNDATION.md). All actions are selected by the operator, allowlisted, and read-only; model text cannot invoke tools or change enforcement.
+
+    bci-nexus actions
+    bci-nexus action host.summary
+    bci-nexus agent-ask --inspect host.summary --inspect ollama.health "Analyze local observations"
+
 ## Environment
 
 - BCI_OLLAMA_URL: defaults to http://127.0.0.1:11435/api/chat; the host fallback http://127.0.0.1:11434/api/chat is allowed. All other URLs are rejected.
