@@ -10,7 +10,7 @@ from nexus import gui
 
 
 def make_sentinel(folder: Path, hook: bool) -> None:
-    folder.mkdir(parents=True)
+    folder.mkdir(parents=True, exist_ok=True)
     (folder / "network_scope.py").write_text("# scope fixture\n", encoding="utf-8")
     parameters = "nexus_extension=None" if hook else ""
     (folder / "sentinel_gui.py").write_text(
