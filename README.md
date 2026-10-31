@@ -104,3 +104,7 @@ See [Unified GUI deployment](docs/UNIFIED_GUI.md). Launch after updating Sentine
 ## BCIBot agent transport correction (v0.4.1)
 
 The native GUI accesses the Docker agent through a private, authenticated Unix socket in the persistent agent workspace. This avoids unreliable TCP port publishing from a Docker `--internal` bridge while retaining container shell access. Inference remains at `127.0.0.1:11435` and BCILock remains native. See [Docker agent runbook](docs/DOCKER_AGENT.md).
+
+## BCIBot Swarm v0.5.0
+
+Nexus chat now coordinates bounded operator-governed roles: coordinator, observed host tools, dual role-based Ollama analysis, verifier and SHA-256 auditor. Native SSID survey and local-only Nmap host discovery require explicit authorization. See docs/SWARM.md.

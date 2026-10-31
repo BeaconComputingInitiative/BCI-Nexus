@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.4.0
+# Component: Unified Nexus / Sentinel / BCIBot / BCILock GUI v0.5.0
 """One native Sentinel QMainWindow with three additional Nexus workspaces."""
 from __future__ import annotations
 import importlib.util
@@ -9,7 +9,7 @@ import json
 import os
 from pathlib import Path
 import sys
-from . import agent_client, core, training
+from . import agent_client, core, training, swarm
 
 def sentinel_path() -> Path:
     base = Path.home() / "BCI"
@@ -137,9 +137,39 @@ def launch() -> None:
             if not q:
                 return
             self.chat.appendPlainText("YOU: " + q)
-            self.submit(lambda: agent_client.ask(q),
+            try:
+                job = swarm.plan(q)
+            except (ValueError, RuntimeError, OSError) as exc:
+                self.chat.appendPlainText("SWARM PLAN ERROR: " + str(exc) + "\n")
+                return
+            approved = False
+            if job.host:
+                target = job.host
+                details = ("NATIVE KALI OBSERVATION\n" +
+                    "Scope: " + target.target + "\nInterface: " + target.interface +
+                    "\nCommand: " + " ".join(target.argv) +
+                    "\n\nApprove only if you own or are authorized to assess this network.")
+                decision = QMessageBox.question(
+                    self, "BCI swarm: approve host observer", details,
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No)
+                if decision != QMessageBox.StandardButton.Yes:
+                    self.chat.appendPlainText("SWARM: Declined; no tool executed.\n")
+                    return
+                approved = True
+            self.chat.appendPlainText("SWARM " + job.id[:10] +
+                                      ": " + " / ".join(job.roles) + "\n")
+            self.submit(lambda j=job, a=approved: swarm.execute(j, approved=a),
                 lambda obj: self.chat.appendPlainText(
-                    "BCIBOT: " + str(obj.get("analysis", "")) + "\n"))
+                    "SWARM [" + str(obj.get("source")) + " verified=" +
+                    str(obj.get("verified")) + "]\n" +
+                    (str(obj["observation"].get("stdout", "")) +
+                     str(obj["observation"].get("stderr", ""))
+                     if "observation" in obj else
+                     "\n".join(r["role"].upper() + " [ADVISORY]: " +
+                               r["text"] for r in obj["reports"])) + "\n"),
+                lambda error: self.chat.appendPlainText(
+                    "SWARM ERROR: " + error + "\n"))
 
         def shell(self):
             command = self.command.text().strip()
