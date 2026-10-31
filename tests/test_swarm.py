@@ -19,7 +19,7 @@ class SwarmTests(unittest.TestCase):
     def test_nmap_private_scope(self):
         with patch.object(swarm, "_cmd", side_effect=[
             fake('[{"dev":"wlan0","metric":10}]'),
-            fake('[{"addr_info":[{"family":"inet","local":"192.168.4.7","prefixlen":24}]}')
+            fake('[{"addr_info":[{"family":"inet","local":"192.168.4.7","prefixlen":24}]}]')
         ]):
             job = swarm.plan("run an nmap scan on my network")
         self.assertEqual(job.host.target, "192.168.4.0/24")
