@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: BCIBot Docker Agent Installer v0.4.0
+# Component: BCIBot Docker Agent Installer v0.4.1
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$ROOT"
@@ -32,7 +32,21 @@ fi
 if ! docker inspect -f '{{json .NetworkSettings.Networks}}' bci-bot-inference | grep -Fq '"bci-nexus-inference"'; then
     docker network connect bci-nexus-inference bci-bot-inference
 fi
-docker compose -f "$ROOT/docker/compose.agent.yml" up -d --build
-echo '[BCI] Container agent published to loopback 127.0.0.1:11436.'
+docker compose -f "$ROOT/docker/compose.agent.yml" up -d --build --force-recreate bci-nexus-agent
+SOCKET="$HOME/.local/share/bci-nexus/agent-workspace/agent.sock"
+# Report successful deployment if and only if the authenticated Unix API responds.
+READY=0
+for _attempt in $(seq 1 20); do
+    if [[ -S "$SOCKET" ]] && python3 -c 'from nexus import agent_client; assert agent_client.health()["scope"] == "CONTAINER_ONLY"' >/dev/null 2>&1; then
+        READY=1
+        break
+    fi
+    sleep 0.5
+done
+if [[ "$READY" -ne 1 ]]; then
+    echo '[BCI] FAIL: Agent Unix socket/API unavailable; inspect container logs.' >&2
+    exit 1
+fi
+echo "[BCI] PASS: Authenticated Unix socket $SOCKET"
 echo '[BCI] Inference stays on 11435. No host firewall or BLE changes.'
 sha256sum "$ROOT/nexus/container_agent.py" "$ROOT/docker/compose.agent.yml"

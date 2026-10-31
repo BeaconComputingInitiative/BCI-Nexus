@@ -1,18 +1,22 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Docker BCIBot Shell and Inference Agent v0.4.0
-"""Authenticated Docker-local shell agent; no host mounts or privileged tools."""
+# Component: Docker BCIBot Shell and Inference Agent v0.4.1
+"""Authenticated container shell API over a private Unix-domain socket."""
 from __future__ import annotations
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
+from socketserver import ThreadingUnixStreamServer
 from pathlib import Path
 from urllib.request import Request, urlopen
 import hashlib
 import hmac
 import json
 import subprocess
+import os
+import stat
 
 WORKSPACE = Path("/workspace")
+SOCKET_FILE = WORKSPACE / "agent.sock"
 TOKEN_FILE = Path("/run/secrets/agent.token")
 OLLAMA_URL = "http://bci-bot-inference:11434/api/chat"
 MODEL = "bci-secops:unified"
@@ -157,8 +161,27 @@ def main() -> None:
     Handler.key = TOKEN_FILE.read_text(encoding="ascii").strip()
     if len(Handler.key) < 48:
         raise RuntimeError("Invalid agent token")
-    print("[BCI] Agent listening on :8766", flush=True)
-    ThreadingHTTPServer(("0.0.0.0", 8766), Handler).serve_forever()
+    # Bind if and only if the socket is absent or is a stale socket owned by us.
+    if SOCKET_FILE.is_symlink():
+        raise RuntimeError("Agent socket path is a symlink")
+    if SOCKET_FILE.exists():
+        previous = SOCKET_FILE.lstat()
+        if not stat.S_ISSOCK(previous.st_mode) or previous.st_uid != os.getuid():
+            raise RuntimeError("Refusing to replace untrusted socket path")
+        SOCKET_FILE.unlink()
+    old_umask = os.umask(0o077)
+    try:
+        server = ThreadingUnixStreamServer(str(SOCKET_FILE), Handler)
+    finally:
+        os.umask(old_umask)
+    SOCKET_FILE.chmod(0o600)
+    print("[BCI] Agent listening on Unix socket /workspace/agent.sock", flush=True)
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
+        if SOCKET_FILE.is_socket() and not SOCKET_FILE.is_symlink():
+            SOCKET_FILE.unlink()
 
 if __name__ == "__main__":
     main()

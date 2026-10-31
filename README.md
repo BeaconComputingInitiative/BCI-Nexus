@@ -100,3 +100,7 @@ Artwork reflects the platform vision, not a claim that pending integrations are 
 The native PyQt6 Nexus GUI extends the existing Sentinel QMainWindow in place: no second GUI and no Docker display forwarding. It adds Nexus overview, BCIBot Docker agent and operator-approved container shell, read-only BCILock evidence and training artifact inventory. The Docker agent service is separately provisioned; a missing agent is shown as offline, not silently replaced by host execution. Training inventory is read-only and never promotes models automatically.
 
 See [Unified GUI deployment](docs/UNIFIED_GUI.md). Launch after updating Sentinel with: `bash scripts/nexus-gui`.
+
+## BCIBot agent transport correction (v0.4.1)
+
+The native GUI accesses the Docker agent through a private, authenticated Unix socket in the persistent agent workspace. This avoids unreliable TCP port publishing from a Docker `--internal` bridge while retaining container shell access. Inference remains at `127.0.0.1:11435` and BCILock remains native. See [Docker agent runbook](docs/DOCKER_AGENT.md).

@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Local-Only BCIBot Docker Agent v0.4.0
+# Component: Local-Only BCIBot Docker Agent v0.4.1
 services:
   bci-nexus-agent:
     build:
@@ -18,8 +18,8 @@ services:
     mem_limit: 768m
     cpus: 1.5
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:11436:8766"
+    # A private Unix socket is shared via the dedicated /workspace bind mount.
+    # No published TCP ports or external gateway network.
     volumes:
       - "${BCI_HOME}/.config/bci-nexus/agent.token:/run/secrets/agent.token:ro"
       - "${BCI_HOME}/.local/share/bci-nexus/agent-workspace:/workspace:rw"

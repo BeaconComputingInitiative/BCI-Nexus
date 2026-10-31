@@ -1,9 +1,9 @@
 # BEACON COMPUTING INITIATIVE
 **Developer Seal:** CJB-DEV-2026
 
-# BCIBot Container Agent v0.4.0
+# BCIBot Container Agent v0.4.1
 
-The native GUI communicates with an authenticated **loopback-only** agent on port 11436. The agent owns a real Bash execution capability in an **isolated container workspace**. Ollama inference remains in the existing `bci-bot-inference` container, accessed over an internal Docker bridge by container name. BCILock and the Sentinel GUI remain native to Kali.
+The native GUI communicates with an authenticated, user-owned **Unix-domain socket** at `~/.local/share/bci-nexus/agent-workspace/agent.sock`. The agent owns a real Bash execution capability in an **isolated container workspace**. Ollama inference remains in the existing `bci-bot-inference` container, accessed over an internal Docker bridge by container name. BCILock and the Sentinel GUI remain native to Kali.
 
 ## Deployment
 
@@ -17,7 +17,7 @@ bash scripts/install-docker-agent.sh
 bash scripts/nexus-gui
 ```
 
-The installer creates a 0600 token at `~/.config/bci-nexus/agent.token` and a persistent nonprivileged workspace at `~/.local/share/bci-nexus/agent-workspace`. It creates the internal Docker network `bci-nexus-inference` if absent and connects the already-existing inference container to that network. It then builds and starts `bci-nexus-agent` with dropped capabilities, a read-only root filesystem, and only the token and dedicated workspace mounted. The agent does **not** receive the Docker socket or arbitrary host paths.
+The agent publishes no host TCP ports. On an internal-only Docker network, no gateway exists for Docker's host port publishing. The private Unix socket (mode 0600) is shared through the existing dedicated workspace mount. The installer creates a 0600 token at `~/.config/bci-nexus/agent.token` and a persistent nonprivileged workspace at `~/.local/share/bci-nexus/agent-workspace`. It creates the internal Docker network `bci-nexus-inference` if absent and connects the already-existing inference container to that network. It then builds and starts `bci-nexus-agent` with dropped capabilities, a read-only root filesystem, and only the token and dedicated workspace mounted. The agent does **not** receive the Docker socket or arbitrary host paths.
 
 A human approves every Bash command in the GUI. The shell executes each command in `/workspace` with a 25-second timeout; this first version is **not** a persistent TTY. Commands can modify the dedicated workspace. Do not put secrets into the workspace without separate encryption. Docker isolation should not be treated as a perfect security boundary, and membership in the docker group grants substantial host-level privilege to the user.
 
@@ -30,6 +30,7 @@ The GUI's Model Training tab is a **read-only artifact inventory**, not a traini
 ```bash
 docker ps --filter name=bci-nexus-agent
 docker exec bci-nexus-agent id
+python3 -c 'from nexus import agent_client; print(agent_client.health())'
 python3 -m unittest discover -s tests -v
 ```
 
