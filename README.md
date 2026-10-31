@@ -94,3 +94,9 @@ by SHA-256 verification manifests.
 <img src="assets/BCI-Nexus-icon.png" alt="BCI Nexus icon" width="240"/>
 
 Artwork reflects the platform vision, not a claim that pending integrations are deployed.
+
+## Unified operator window (v0.4 foundation)
+
+The native PyQt6 Nexus GUI extends the existing Sentinel QMainWindow in place: no second GUI and no Docker display forwarding. It adds Nexus overview, BCIBot Docker agent and operator-approved container shell, read-only BCILock evidence and training artifact inventory. The Docker agent service is separately provisioned; a missing agent is shown as offline, not silently replaced by host execution. Training inventory is read-only and never promotes models automatically.
+
+See [Unified GUI deployment](docs/UNIFIED_GUI.md). Launch after updating Sentinel with: `bash scripts/nexus-gui`.

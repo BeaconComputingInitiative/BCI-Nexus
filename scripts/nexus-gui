@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# BEACON COMPUTING INITIATIVE
+# Developer Seal: CJB-DEV-2026
+# Component: Native BCI Nexus + Sentinel GUI Launcher v0.4.0
+set -euo pipefail
+SOURCE="$(readlink -f "$0")"
+ROOT="$(dirname "$(dirname "$SOURCE")")"
+if [[ -z "${DISPLAY:-}" && -z "${WAYLAND_DISPLAY:-}" ]]; then
+    echo '[BCI] No graphical session. Open a desktop terminal.' >&2
+    exit 2
+fi
+export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+exec /usr/bin/python3 -m nexus.gui
