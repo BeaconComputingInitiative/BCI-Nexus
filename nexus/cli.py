@@ -10,7 +10,7 @@ import shutil
 import sys
 
 from . import DEVELOPER_SEAL, __version__
-from . import core, network
+from . import core, network, agent
 
 
 def display(data: object) -> None:
@@ -24,6 +24,12 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("status")
     sub.add_parser("terminal")
     sub.add_parser("observe")
+    sub.add_parser("actions")
+    direct = sub.add_parser("action")
+    direct.add_argument("name")
+    bot = sub.add_parser("agent-ask")
+    bot.add_argument("--inspect", action="append", dest="inspections", required=True)
+    bot.add_argument("question", nargs="+")
     watch = sub.add_parser("watch")
     watch.add_argument("--interval", type=int, default=15)
     ask = sub.add_parser("ask-lock")
@@ -52,6 +58,14 @@ def main(argv: list[str] | None = None) -> int:
                     evidence = item["data"]["facts"]
                     for fact in evidence:
                         print(fact["id"] + " " + json.dumps(fact["value"], sort_keys=True))
+        elif args.action == "actions":
+            display(agent.catalog())
+        elif args.action == "action":
+            display(agent.execute(args.name))
+        elif args.action == "agent-ask":
+            result = agent.analyze(" ".join(args.question), args.inspections)
+            display(result)
+            return 0 if result["citation_gate_passed"] else 3
         elif args.action == "observe":
             display(network.observe_once())
         elif args.action == "watch":
@@ -69,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except KeyboardInterrupt:
         return 130
-    except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, RuntimeError, PermissionError, json.JSONDecodeError) as exc:
         print("[BCI] FAIL: " + type(exc).__name__ + ": " + str(exc),
               file=sys.stderr)
         return 1
