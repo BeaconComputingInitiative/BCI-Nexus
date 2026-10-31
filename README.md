@@ -35,6 +35,26 @@ The platform is built around three separate projects. A verified BCILock-to-BCIB
 
 **Detailed [integration breakdown, trust boundaries and verification matrix](docs/INTEGRATIONS.md).**
 
+## Executable integration foundation (v0.2.0)
+
+Nexus provides a nonprivileged, read-only CLI for BCILock telemetry, Docker Ollama model health, Sentinel snapshot inspection, and a local IP/AP-change journal. The shared BCI SEC-OPS/BCILock integration remains independently installed. No firewall or BLE authentication authority is transferred to Nexus.
+
+~~~sh
+cd "$HOME/BCI/BCI-Nexus"
+git pull --ff-only origin main
+sha256sum -c SHA256SUMS
+python3 -m unittest discover -s tests -v
+bash scripts/install-user.sh
+bci-nexus doctor
+bci-nexus status
+bci-nexus terminal
+bci-nexus observe
+~~~
+
+The optional command bci-nexus ask-lock submits fresh BCILock evidence for advisory model analysis; its evidence-ID gate is structural only, not semantic verification. No automatic host scans, system services, Sentinel GUI modifications, or remote desktop configuration are included.
+
+See [Runbook](docs/RUNBOOK.md) and [Security](SECURITY.md).
+
 ## Development Status
 
 Integration in progress.

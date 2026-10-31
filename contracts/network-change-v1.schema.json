@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BEACON COMPUTING INITIATIVE | Nexus local network change v1",
+  "description": "Developer Seal: CJB-DEV-2026. Read-only local network event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "developer_seal",
+    "observed_utc",
+    "snapshot_sha256",
+    "snapshot"
+  ],
+  "properties": {
+    "schema": {
+      "const": "bci.nexus.network-change.v1"
+    },
+    "developer_seal": {
+      "const": "CJB-DEV-2026"
+    },
+    "observed_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interface",
+        "gateway",
+        "addresses",
+        "ssid",
+        "bssid"
+      ],
+      "properties": {
+        "interface": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gateway": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ssid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bssid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

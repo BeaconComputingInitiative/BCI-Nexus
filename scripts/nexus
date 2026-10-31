@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# BEACON COMPUTING INITIATIVE
+# Developer Seal: CJB-DEV-2026
+# Component: BCI Nexus CLI launcher v0.2.0
+set -euo pipefail
+SOURCE="$(readlink -f "$0")"
+ROOT="$(dirname "$(dirname "$SOURCE")")"
+export PYTHONPATH="$ROOT"
+exec python3 -m nexus.cli "$@"
