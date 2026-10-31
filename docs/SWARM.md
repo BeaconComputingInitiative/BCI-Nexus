@@ -10,3 +10,15 @@ SSID surveys use NetworkManager nmcli. Nmap is host discovery only, unprivileged
 No model-generated commands run on Kali. The Docker shell remains independently isolated. The swarm cannot modify BCILock, nftables, model training jobs or production databases.
 
 This is not yet a distributed swarm across multiple machines. Analyst and Skeptic share one model; agreement is not evidence of factual accuracy. Log: ~/.local/state/bci-nexus/swarm-audit.jsonl with SHA-256 sidecar.
+
+## Observation routing and verification v0.5.1
+
+"Check my network for endpoints", "discover hosts on my network" and
+"list devices on my network" trigger an operator-reviewed bounded host
+observation plan rather than an Ollama-only analysis. No scan runs absent
+approval, and private-address range does not imply legal authorization.
+
+Model advice always reports `verified=false` and separately
+`response_shape_valid` when its transport and format are correct.
+Observed command output separately reports `execution_succeeded` for
+exit-code success. Neither flag certifies the substantive findings.

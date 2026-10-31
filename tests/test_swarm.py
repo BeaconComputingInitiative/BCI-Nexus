@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Swarm Regression Tests v0.5.0
+# Component: Swarm Regression Tests v0.5.1
 import subprocess
 import unittest
 from unittest.mock import patch
@@ -24,6 +24,29 @@ class SwarmTests(unittest.TestCase):
             job = swarm.plan("run an nmap scan on my network")
         self.assertEqual(job.host.target, "192.168.4.0/24")
         self.assertEqual(job.host.argv[:3], ("nmap", "-sn", "-n"))
+
+    def test_endpoint_language_routes_to_observer(self):
+        self.assertEqual(swarm.classify("check my network for endpoints"),
+                         "network.discover")
+        self.assertEqual(swarm.classify("discover hosts on my network"),
+                         "network.discover")
+        self.assertEqual(swarm.classify("list devices on my network"),
+                         "network.discover")
+        self.assertIsNone(swarm.classify("check endpoints on example.com"))
+        self.assertIsNone(swarm.classify("check my network for endpoints; whoami"))
+
+    def test_advisory_transport_is_not_factual_verification(self):
+        from unittest.mock import patch
+        with patch.object(swarm, "_model", side_effect=[
+            {"role": "analyst", "model": "bci-secops:unified",
+             "scope": "ADVISORY_ONLY", "text": "Unverified assumption"},
+            {"role": "skeptic", "model": "bci-secops:unified",
+             "scope": "ADVISORY_ONLY", "text": "Missing evidence"}
+        ]), patch.object(swarm, "_audit"):
+            answer = swarm.execute(swarm.plan("Explain network interfaces"))
+        self.assertFalse(answer["verified"])
+        self.assertTrue(answer["response_shape_valid"])
+        self.assertFalse(answer["semantic_validation"])
 
     def test_explicit_destinations_not_autorouted(self):
         self.assertIsNone(swarm.classify("scan 8.8.8.8/32"))

@@ -1,6 +1,6 @@
 # BEACON COMPUTING INITIATIVE
 # Developer Seal: CJB-DEV-2026
-# Component: Bounded BCIBot Agent Swarm v0.5.0
+# Component: Bounded BCIBot Agent Swarm v0.5.1
 """Single-host coordinator, observer, analyst, skeptic, verifier and auditor."""
 from __future__ import annotations
 
@@ -48,8 +48,16 @@ def classify(question: str) -> str | None:
     if (re.search(r"\b(ssids?|wi-?fi|wireless networks?|access points?)\b", q)
             and re.search(r"\b(pull|show|list|find|scan|around|nearby)\b", q)):
         return "wifi.ssids"
-    if (re.search(r"\b(nmap|network scan|scan (?:my|the|local) network)\b", q)
-            and re.search(r"\b(my network|local network|on my network|on the network)\b", q)):
+    # Treat "check my network for endpoints" as an observation request,
+    # never as evidence that an observation has already occurred.
+    local_scope_requested = bool(re.search(
+        r"\b(my network|local network|on my network|on the network)\b", q))
+    explicit_discovery = bool(re.search(
+        r"\b(nmap|network scan|scan (?:my|the|local) network)\b", q))
+    endpoint_discovery = bool(re.search(
+        r"\b(check|scan|find|discover|list|show|enumerate|identify)\b", q)
+        and re.search(r"\b(endpoints?|hosts?|devices?|clients?|machines?)\b", q))
+    if local_scope_requested and (explicit_discovery or endpoint_discovery):
         return "network.discover"
     return None
 
@@ -154,7 +162,9 @@ def _audit(job: Job, output: dict) -> None:
         "question_sha256": hashlib.sha256(job.question.encode()).hexdigest(),
         "response_sha256": hashlib.sha256(json.dumps(
             output, sort_keys=True).encode()).hexdigest(),
-        "validated_shape_or_exit": output.get("verified", False)
+        "response_shape_valid": output.get("response_shape_valid", False),
+        "execution_succeeded": output.get("execution_succeeded", False),
+        "semantic_validation": False
     }
     fd = os.open(journal, os.O_CREAT | os.O_WRONLY | os.O_APPEND |
                  getattr(os, "O_NOFOLLOW", 0), 0o600)
@@ -181,15 +191,18 @@ def execute(job: Job, approved: bool = False) -> dict:
         valid = all(r["model"] == "bci-secops:unified"
                     and r["scope"] == "ADVISORY_ONLY" and bool(r["text"].strip())
                     for r in reports)
-        result = {"source": "LLM_ADVISORY", "reports": reports, "verified": valid,
-                  "semantic_validation": False}
+        result = {"source": "LLM_ADVISORY", "reports": reports,
+                  "verified": False, "response_shape_valid": valid,
+                  "semantic_validation": False,
+                  "notice": "No host observation performed; model facts unverified."}
     else:
         if not approved or job.host is None or job.kind != job.host.name:
             raise PermissionError("Explicit operator approval required")
         observation = _observe(job.host)
         result = {"source": "HOST_TOOL_OBSERVATION", "observation": observation,
-                  "verified": observation["exit_code"] == 0,
-                  "semantic_validation": False}
+                  "verified": False, "execution_succeeded": observation["exit_code"] == 0,
+                  "semantic_validation": False,
+                  "notice": "Exit status is not independent verification of findings."}
     result.update(job_id=job.id, roles=list(job.roles), developer_seal=SEAL)
     _audit(job, result)
     return result
