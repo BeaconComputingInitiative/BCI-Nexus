@@ -135,3 +135,7 @@ A local Qwen3-1.7B LoRA fine-tuning sequence is now recorded in [the rebuild reg
 - Standalone Qwen3 local chat was tested; slow CPU inference and factual overclaiming remain open evaluation findings.
 
 The repository includes only source and evidence documentation, not model weights, optimizer state, private logs or synthetic dataset archives. New files are sealed in SHA256SUMS.
+
+## Why Nexus selected Qwen3-1.7B
+
+The [model-selection decision record](docs/MODEL_SELECTION_RATIONALE.md) explains why the project advanced from the historical Qwen2.5-0.5B foundation to a separately evaluated Qwen3-1.7B LoRA candidate, its expected benefits for security-event interpretation and agent coordination, alternatives considered, hardware/adapter trade-offs, and the tests required before production promotion. The running SEC-OPS/Ollama service has not been automatically replaced.

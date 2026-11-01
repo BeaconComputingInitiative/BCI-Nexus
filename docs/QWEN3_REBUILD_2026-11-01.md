@@ -54,3 +54,7 @@ The historical standalone chat code is archived as training/rebuild/bci_nexus_ch
 ## Publication restrictions
 
 No binary weights, optimizer.pt, checkpoint state, dataset ZIPs, synthetic fixture records, credentials, internal logs, or private host observations are included. Stage-3 completion and production promotion are NOT claimed.
+
+## Model-selection decision
+
+The architectural rationale, historical alternatives, estimated project benefits, compute costs, and independent model-promotion gates are documented in [MODEL_SELECTION_RATIONALE.md](MODEL_SELECTION_RATIONALE.md). The move to Qwen3 is an independently evaluated local candidate, not proof that the deployed BCIBot/SEC-OPS model was replaced.

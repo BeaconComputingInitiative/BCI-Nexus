@@ -106,3 +106,10 @@ For this document, verify `docs/DEVELOPERS_LOG.md.sha256` from the repository ro
 - Stage-3 synthetic 10K ZIP passed integrity and source checkpoint checks but failed the original three-role trainer schema. A source-preserving synthetic projection and Qwen tokenizer preflight were added. Stage-3 execution and completion have NOT been demonstrated by the terminal output available here.
 - Standalone chat loaded a LoRA checkpoint, but the local OSNT and general abilities tests showed factual overclaiming. FP32 CPU latency and output truncation were also observed; the subsequently patched local chat.py is not included in the historical source archive.
 - This consolidated publication contains source, documentation, and hash manifests only. See docs/QWEN3_REBUILD_2026-11-01.md.
+
+## November 1, 2026 - Nexus base-model decision record
+
+- Documented why the earlier Qwen2.5-0.5B-Instruct model was used to establish the SEC-OPS pipeline and why Qwen3-1.7B was accepted as the next independent LoRA candidate for more complex Nexus security and multi-agent workflows.
+- Recorded 0.49B versus 1.7B parameter counts, both model-card context windows of 32,768 tokens, thinking/non-thinking architecture differences, FP32 CPU memory costs, Gemma 3 1B and Qwen3 4B alternatives, and the incompatibility of historical Qwen2.5 adapters with Qwen3.
+- Kept expected advantages separate from measured results: Stage-1/2 checkpoint status, Stage-2 16-example loss, the operator's slow FP32 inference and factual-error observations. No head-to-head model comparison or Stage-3 completion was inferred.
+- Confirmed the production service, agent execution policy, BCILock enforcement and model-promotion authority are unchanged. See docs/MODEL_SELECTION_RATIONALE.md.
