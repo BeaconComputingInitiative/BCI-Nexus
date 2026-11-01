@@ -97,3 +97,12 @@ python3 -m unittest discover -s tests -v
 ```
 
 For this document, verify `docs/DEVELOPERS_LOG.md.sha256` from the repository root with `sha256sum -c docs/DEVELOPERS_LOG.md.sha256`. The log is documentation and does not alter running services.
+
+## November 1, 2026 - Post-rebuild Qwen3 handoff
+
+**Source of evidence:** local operator terminal messages plus archived Python scripts, not a production deployment or a new independently trained model artifact on GitHub.
+
+- Events Stage 1 completed 250/250; Agent Actions Stage 2 completed 250/250. The user verified the Stage-2 adapter SHA-256 20a0fe9f3c868e08597d3b3a3bb89caa9ea6980cf213040df4dab34db7f817b2; evaluation loss 2.4424719470513203 over 4,085 tokens / 16 examples.
+- Stage-3 synthetic 10K ZIP passed integrity and source checkpoint checks but failed the original three-role trainer schema. A source-preserving synthetic projection and Qwen tokenizer preflight were added. Stage-3 execution and completion have NOT been demonstrated by the terminal output available here.
+- Standalone chat loaded a LoRA checkpoint, but the local OSNT and general abilities tests showed factual overclaiming. FP32 CPU latency and output truncation were also observed; the subsequently patched local chat.py is not included in the historical source archive.
+- This consolidated publication contains source, documentation, and hash manifests only. See docs/QWEN3_REBUILD_2026-11-01.md.

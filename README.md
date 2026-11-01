@@ -124,3 +124,14 @@ to UTF-8 JSON with a developer-sealed SHA-256 sidecar. Sentinel's existing
 when the tab pages are hidden. An auto-sync status indicator shows data
 availability and the most recent saved-state timestamp. Exported data is
 point-in-time and may be stale when the API is offline.
+
+## Qwen3 fine-tuning rebuild (2026-11-01)
+
+A local Qwen3-1.7B LoRA fine-tuning sequence is now recorded in [the rebuild register](docs/QWEN3_REBUILD_2026-11-01.md) and [versioned script archive](training/rebuild/README.md). This independent training pipeline is **not** automatically integrated with the Nexus agent, BCILock enforcement or the Docker-hosted Ollama gateway.
+
+- Stage 1 (Events Intelligence): 250/250 optimizer steps completed.
+- Stage 2 (Agent Actions): 250/250 completed; adapter SHA-256 independently verified; 16-example evaluation loss 2.442471947.
+- Stage 3 (Agentic Engineering and Execution): original synthetic archive recovered and compatibility projection supplied; no verified training completion reported.
+- Standalone Qwen3 local chat was tested; slow CPU inference and factual overclaiming remain open evaluation findings.
+
+The repository includes only source and evidence documentation, not model weights, optimizer state, private logs or synthetic dataset archives. New files are sealed in SHA256SUMS.
