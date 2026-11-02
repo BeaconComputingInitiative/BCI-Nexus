@@ -131,7 +131,7 @@ A local Qwen3-1.7B LoRA fine-tuning sequence is now recorded in [the rebuild reg
 
 - Stage 1 (Events Intelligence): 250/250 optimizer steps completed.
 - Stage 2 (Agent Actions): 250/250 completed; adapter SHA-256 independently verified; 16-example evaluation loss 2.442471947.
-- Stage 3 (Agentic Engineering and Execution): original synthetic archive recovered and compatibility projection supplied; no verified training completion reported.
+- Stage 3 (Agentic Engineering and Execution): 250/250 completed; operator's adapter-integrity check PASS; Stage-3 eval loss 3.628412 → 1.694577; final SHA-256 `f8a50f1ba9b2a2b1df2a1d8f5f365ad090be641f463e2d9af0417b9a0805d78d`. See [Stage-3 completion record](docs/STAGE3_COMPLETION_2026-11-01.md).
 - Standalone Qwen3 local chat was tested; slow CPU inference and factual overclaiming remain open evaluation findings.
 
 The repository includes only source and evidence documentation, not model weights, optimizer state, private logs or synthetic dataset archives. New files are sealed in SHA256SUMS.

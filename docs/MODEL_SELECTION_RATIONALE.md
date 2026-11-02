@@ -109,3 +109,7 @@ Do not report an unknown result as PASS. Stage-3 readiness and full dataset cove
 - BCI Nexus archived scripts and [rebuild evidence register](QWEN3_REBUILD_2026-11-01.md). This public repository does not include private logs or model weights.
 
 **Decision outcome:** Qwen3-1.7B is the *preferred Nexus development and evaluation foundation* because it balances anticipated agentic reasoning headroom, Qwen training continuity and local controllability. It is **not yet a validated replacement for the production BCIBot/SEC-OPS model**.
+
+## Subsequent Stage-3 checkpoint result (2026-11-01)
+
+After the model-selection record's original evidence snapshot, the operator's local Stage-3 final check passed: 250 optimizer steps, baseline loss 3.6284115075254117, final loss 1.694576641500351 (53.30% lower), adapter SHA-256 `f8a50f1ba9b2a2b1df2a1d8f5f365ad090be641f463e2d9af0417b9a0805d78d`. This improves the within-Stage-3 loss result but does not establish comparative superiority over Qwen2.5 or readiness for autonomous tool use. See [Stage-3 evidence and handoff](STAGE3_COMPLETION_2026-11-01.md).

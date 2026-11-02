@@ -58,3 +58,7 @@ No binary weights, optimizer.pt, checkpoint state, dataset ZIPs, synthetic fixtu
 ## Model-selection decision
 
 The architectural rationale, historical alternatives, estimated project benefits, compute costs, and independent model-promotion gates are documented in [MODEL_SELECTION_RATIONALE.md](MODEL_SELECTION_RATIONALE.md). The move to Qwen3 is an independently evaluated local candidate, not proof that the deployed BCIBot/SEC-OPS model was replaced.
+
+## Subsequent Stage-3 completion evidence (2026-11-01)
+
+After this document's original evidence cutoff, the operator provided a passing local Stage-3 integrity-verification output. Baseline loss was `3.6284115075254117`, final loss was `1.694576641500351`, and the verified Step-250 adapter digest was `f8a50f1ba9b2a2b1df2a1d8f5f365ad090be641f463e2d9af0417b9a0805d78d`. The script wrote the local `STAGE3-SHA256SUMS` manifest. These later observations supersede earlier statements that Stage-3 completion was not yet reported. The [Stage-3 completion and Stage-4 handoff record](STAGE3_COMPLETION_2026-11-01.md) documents evidence limits and the next corpus's multi-turn schema compatibility requirement.
